@@ -9,9 +9,10 @@ template = """Question: {question}
 
 Answer: Let's think step by step."""
 
-prompt = PromptTemplate(template=template, input_variables=["question"])
+prompt = PromptTemplate(template=template, input_variables=[question])
 
 llm = CustomLLM()
 llm_chain = LLMChain(prompt=prompt, llm=llm)
-
-print(llm_chain.run(question))
+print(llm_chain)
+#print(llm_chain.invoke({"question": "where did harrison work", "language": "italian"}))
+#print(llm_chain.invoke({"input":question}))
