@@ -2,8 +2,10 @@ import os
 import requests
 
 from typing import Any, List, Mapping, Optional
+
 from langchain_core.callbacks.manager import CallbackManagerForLLMRun
 from langchain_core.language_models.llms import LLM
+from dotenv import load_dotenv
 
 class CustomLLM(LLM):
 
@@ -22,13 +24,12 @@ class CustomLLM(LLM):
         #make a API call to model on AWS
         #Retrieve JSON
         #Return string of output
-        API_URL = "https://c9ejquzh6yum3xqf.us-east-1.aws.endpoints.huggingface.cloud/"
+        #API_URL = "https://c9ejquzh6yum3xqf.us-east-1.aws.endpoints.huggingface.cloud/" # Embedding model LLM 
+        API_URL = "https://z8dvl7fzhxxcybd8.eu-west-1.aws.endpoints.huggingface.cloud/"  # Test LLM
         API_TOKEN = os.environ["API_TOKEN"] 
-        print(API_TOKEN)
-        #API_TOKEN = "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"
         headers = {"Authorization": f"Bearer {API_TOKEN}"}
         payload = {
-            "inputs": str,
+            "inputs": prompt,
             "parameters": { #Try and experiment with the parameters
                 "max_new_tokens": 1024,
                 "temperature": 0.6,
@@ -38,9 +39,10 @@ class CustomLLM(LLM):
             }
         }        
         response = requests.post(API_URL, headers=headers, json=payload)
-        return response.json()[0]['generated_text']
+        output=response.json()[0]['generated_text'] 
+        return output
 
-    # @property
-    # def _identifying_params(self) -> Mapping[str, Any]:
-    #     """Get the identifying parameters."""
-    #     return {"n": self.n}
+    @property
+    def _identifying_params(self) -> Mapping[str, Any]:
+        """Get the identifying parameters."""
+        return {"promt":"Input query to the LLM for answer"}
