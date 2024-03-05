@@ -1,0 +1,111 @@
+import os
+from dotenv import load_dotenv
+from langchain_community.llms import HuggingFaceTextGenInference
+from langchain.chains import APIChain
+from langchain.chains.api import open_meteo_docs
+from langchain_openai import ChatOpenAI, OpenAI
+
+load_dotenv()
+llm = HuggingFaceTextGenInference(
+    inference_server_url=os.getenv("LLM_API"),
+    max_new_tokens=10,
+    top_p=0.9,
+    server_kwargs={
+        "headers": {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {os.getenv('API_TOKEN')}"
+        }
+    }
+)
+
+
+from langchain.chains import APIChain
+from langchain.chains.api import open_meteo_docs
+from langchain_openai import OpenAI
+
+from langchain.chains import APIChain
+from langchain.chains.api import podcast_docs
+from langchain_openai import OpenAI
+
+listen_api_key = "6492aeae496449f0b4acf78fd653307e"  # Get api key here: https://www.listennotes.com/api/pricing/
+
+#llm = OpenAI(temperature=0)
+headers = {"X-ListenAPI-Key": listen_api_key}
+chain = APIChain.from_llm_and_api_docs(
+    llm,
+    podcast_docs.PODCAST_DOCS,
+    headers=headers,
+    verbose=True,
+   # limit_to_domains=["https://listen-api.listennotes.com/"],
+    limit_to_domains=["https://listen-api.listennotes.com/api/v2"]
+)
+chain.run(
+    "Search for 'silicon valley bank' podcast episodes, audio length is more than 30 minutes, return only 1 result with 1500 tokens"
+)
+
+
+#os.environ["OPENAI_API_KEY"] = ""
+#llm = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo", max_tokens=256, verbose=True)
+
+# apiSpec = """API documentation:
+# Base URL: https://developers.onemap.sg/commonapi
+# Endpoint: /search
+# Example API call: https://developers.onemap.sg/commonapi/search?searchVal=520201&returnGeom=Y&getAddrDetails=Y&pageNum=1
+
+# This API is for retrieving address details based on a search keyword.
+
+# Request POST payload (JSON object) 
+# Json Field	Format	Required	Default	Description
+# searchVal	String	No		Any string representing a steet address, establishment, location or postal code
+# returnGeom String Yes N always set to N
+# getAddrDetails String Yes Y always set to Y
+
+# INSTRUCTIONS FOR RESPONDING
+# Reply to the user with the first ADDRESS result, respond in natural language indicate the ADDRESS from the APi response. If data is empty, just say you the search has not returned any results and you are sorry.
+
+# """
+
+# chain_new = APIChain.from_llm_and_api_docs(llm, apiSpec, verbose=True, limit_to_domains=["https://developers.onemap.sg/"])
+# response = chain_new.run('What is the postal code of Our Tampines Hub?')
+# print(response)
+
+
+
+# #llm = OpenAI(temperature=0)
+# chain = APIChain.from_llm_and_api_docs(
+#     llm,
+#     open_meteo_docs.OPEN_METEO_DOCS,
+#     verbose=True,
+#     limit_to_domains=["https://api.open-meteo.com/"],
+# )
+# # chain.run(
+# #     "What is the weather like right now in Munich, Germany in degrees Fahrenheit?"
+# # )
+# chain.run(
+#     "What is the current snow depth in Helsinki, Finland?"
+# )
+
+
+
+# from langchain.chains import LLMChain, LLMRequestsChain
+# from langchain.prompts import PromptTemplate
+
+# template = """Between >>> and <<< are the raw search result text from google.
+# Extract the answer to the question '{query}' or say "not found" if the information is not contained.
+# Use the format
+# Extracted:<answer or "not found">
+# >>> {requests_result} <<<
+# Extracted:"""
+
+# PROMPT = PromptTemplate(
+#     input_variables=["query", "requests_result"],
+#     template=template,
+# )
+
+# chain = LLMRequestsChain(llm_chain=LLMChain(llm=OpenAI(temperature=0), prompt=PROMPT))
+# question = "What are the Three (3) biggest countries, and their respective sizes?"
+# inputs = {
+#     "query": question,
+#     "url": "https://www.google.com/search?q=" + question.replace(" ", "+"),
+# }
+# chain(inputs)
